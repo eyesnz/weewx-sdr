@@ -1180,22 +1180,32 @@ class FOWHx080Packet(Packet):
         if 'id' in obj:
             pkt['station_id'] = obj.get('id')
         pkt['msg_type'] = Packet.get_int(obj, 'msg_type')
-        pkt['temperature'] = Packet.get_float(obj, 'temperature_C')
-        pkt['humidity'] = Packet.get_float(obj, 'humidity')
-        pkt['wind_dir'] = Packet.get_float(obj, 'direction_deg')
-        pkt['wind_speed'] = Packet.get_float(obj, 'speed')
-        pkt['wind_gust'] = Packet.get_float(obj, 'gust')
-        rain_total = Packet.get_float(obj, 'rain')
-        if rain_total is not None:
-            pkt['rain_total'] = rain_total / 10.0 # convert to cm
-        pkt['battery'] = 0 if obj.get('battery') == 'OK' else 1
-        pkt['signal_type'] = 1 if obj.get('signal_type') == 'WWVB / MSF' else 0
-        pkt['hours'] = Packet.get_int(obj, 'hours')
-        pkt['minutes'] = Packet.get_int(obj, 'minutes')
-        pkt['seconds'] = Packet.get_int(obj, 'seconds')
-        pkt['year'] = Packet.get_int(obj, 'year')
-        pkt['month'] = Packet.get_int(obj, 'month')
-        pkt['day'] = Packet.get_int(obj, 'day')
+
+        # new versions of rtl_433 return the same model for WH1080 and WH3080
+        # where subtype 2 = 3080 data (solar); 0 = WH1080 data
+        if 'subtype' in obj and obj.get('subtype') == 2:
+            pkt['uv_index'] = Packet.get_float(obj, 'uv_index')
+            pkt['luminosity'] = Packet.get_float(obj, 'lux')
+            pkt['radiation'] = Packet.get_float(obj, 'wm')
+            pkt['illumination'] = Packet.get_float(obj, 'fc')
+            pkt['uv_status'] = 0 if obj.get('uv_status') == 'OK' else 1
+        else:
+            pkt['temperature'] = Packet.get_float(obj, 'temperature_C')
+            pkt['humidity'] = Packet.get_float(obj, 'humidity')
+            pkt['wind_dir'] = Packet.get_float(obj, 'direction_deg')
+            pkt['wind_speed'] = Packet.get_float(obj, 'speed')
+            pkt['wind_gust'] = Packet.get_float(obj, 'gust')
+            rain_total = Packet.get_float(obj, 'rain')
+            if rain_total is not None:
+                pkt['rain_total'] = rain_total / 10.0 # convert to cm
+            pkt['battery'] = 0 if obj.get('battery') == 'OK' else 1
+            pkt['signal_type'] = 1 if obj.get('signal_type') == 'WWVB / MSF' else 0
+            pkt['hours'] = Packet.get_int(obj, 'hours')
+            pkt['minutes'] = Packet.get_int(obj, 'minutes')
+            pkt['seconds'] = Packet.get_int(obj, 'seconds')
+            pkt['year'] = Packet.get_int(obj, 'year')
+            pkt['month'] = Packet.get_int(obj, 'month')
+            pkt['day'] = Packet.get_int(obj, 'day')
         return FOWHx080Packet.insert_ids(pkt)
 
     @staticmethod
