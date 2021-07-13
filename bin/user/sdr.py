@@ -1046,6 +1046,25 @@ class EcoWittWH40Packet(Packet):
         return Packet.add_identifiers(pkt, station_id, EcoWittWH40Packet.__name__)
 
 
+class EsperanzaEWSPacket(Packet):
+    # 2021-07-13 : Esperanza EWS Temperature and Humidity Sensor
+    # {"time" : "2021-07-13 01:07:04", "model" : "Esperanza-EWS", "id" : 135, "channel" : 3, "battery_ok" : 1, "temperature_F" : 0.400, "humidity" : 0, "mic" : "CRC"}
+
+    IDENTIFIER = "Esperanza-EWS"
+
+    @staticmethod
+    def parse_json(obj):
+        pkt = dict()
+        pkt['dateTime'] = Packet.parse_time(obj.get('time'))
+        pkt['usUnits'] = weewx.US
+        pkt['temperature'] = Packet.get_float(obj, 'temperature_F')
+        pkt['humidity'] = Packet.get_float(obj, 'humidity')
+        pkt['battery'] = Packet.get_int(obj, 'battery_ok')
+        pkt['channel'] = obj.get('channel')
+        pkt = Packet.add_identifiers(pkt, EsperanzaEWSPacket.__name__)
+        return pkt
+
+
 class FOWH1080Packet(Packet):
     # 2016-09-02 22:26:05 :Fine Offset WH1080 weather station
     # Msg type: 0
@@ -1146,7 +1165,8 @@ class FOWHx080Packet(Packet):
 
     #IDENTIFIER = "Fine Offset Electronics WH1080 / WH3080 Weather Station"
     #IDENTIFIER = "Fine Offset Electronics WH1080/WH3080 Weather Station"
-    IDENTIFIER = "Fine Offset Electronics WH1080"
+    #IDENTIFIER = "Fine Offset Electronics WH1080"
+    IDENTIFIER = "Fineoffset-WHx080"
 
     @staticmethod
     def parse_json(obj):
@@ -1196,7 +1216,8 @@ class FOWH3080Packet(Packet):
 
     # {"time" : "2017-05-15 17:21:07", "model" : "Fine Offset Electronics WH3080 Weather Station", "msg_type" : 2, "uv_sensor_id" : 225, "uv_status" : "OK", "uv_index" : 1, "lux" : 7837.000, "wm" : 11.474, "fc" : 728.346}
 
-    IDENTIFIER = "Fine Offset Electronics WH3080 Weather Station"
+    #IDENTIFIER = "Fine Offset Electronics WH3080 Weather Station"
+    IDENTIFIER = "Fineoffset-WHx080"
 
     @staticmethod
     def parse_json(obj):
@@ -2508,6 +2529,7 @@ class PacketFactory(object):
         Bresser5in1Packet,
         CalibeurRF104Packet,
         EcoWittWH40Packet,
+        EsperanzaEWSPacket,
         FOWHx080Packet,
         FOWH1080Packet,
         FOWH3080Packet,
